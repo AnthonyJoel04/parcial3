@@ -1,3 +1,4 @@
+// config/database.js
 const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
@@ -7,30 +8,17 @@ const sequelize = new Sequelize(
   process.env.DB_PASSWORD,
   {
     host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    dialect: 'mysql',
-    logging: false, // Cambiar a true para ver las consultas SQL
-    pool: {
-      max: 5,
-      min: 0,
-      acquire: 30000,
-      idle: 10000
-    }
+    dialect: 'mysql'
   }
 );
 
-// Función para probar la conexión
-const testConnection = async () => {
+async function testConnection() {
   try {
-    // await sequelize.sync({ force: true }); // para eliminar las tablas y crearlas de nuevo
     await sequelize.authenticate();
-    console.log('Conexión a MySQL establecida correctamente');
-  } catch (error) {
-    console.error('Error al conectar con MySQL:', error);
+    console.log('DB connected.');
+  } catch (err) {
+    console.error('Error connecting to DB:', err);
   }
-};
+}
 
-module.exports = {
-  testConnection,
-  sequelize
-};
+module.exports = { sequelize, testConnection };

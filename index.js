@@ -1,44 +1,45 @@
-console.log("Mi primera app en express.js");
 require('dotenv').config();
 const express = require('express');
-const { corsMiddleware } = require('./shared/middleware/cors');
-const { testConnection } = require('./config/database');
-const { syncModels } = require('./shared/models');
+const cors = require('cors');
+
+const { sequelize, testConnection } = require('./config/database.js');
+
+const authRoutes = require('./routes/auth');
+const User = require('./models/user');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
 
+// Middleware
+app.use(cors());
 app.use(express.json());
-app.use(corsMiddleware);
 
-// Inicializar base de datos
-const initializeDatabase = async () => {
-  await testConnection();
-  await syncModels();
-};
-
+// Ruta simple de prueba
 app.get('/', (req, res) => {
-  console.log(`Sistema de login funcionando correctamente en el puerto ${PORT}`);
-  res.json({
-    message: '¡Hola! Express funcionando con MySQL',
-    timestamp: new Date().toISOString(),
-    status: 'success'
-  });
+  res.json({ ok: true, message: 'Auth system backend alive' });
 });
 
-// Login
-app.use('/api/v1', require('./routes/auth'));
+console.log("Cargando rutas de AUTH...");
+// Rutas principales
+app.use('/api/auth', authRoutes);
 
-// Inicializar servidor
-const startServer = async () => {
+// Iniciar servidor y DB
+const PORT = process.env.PORT || 3000;
+
+(async () => {
   try {
-    await initializeDatabase();
-    app.listen(PORT, () => {
-      console.log(`Servidor en http://localhost:${PORT}`);
-    });
-  } catch (error) {
-    console.error('Error al iniciar el servidor:', error);
-  }
-};
+    // Primero probamos conexión (tu función)
+    await testConnection();
 
-startServer();
+    // Luego sincronizamos modelos
+    await sequelize.sync();
+    console.log("Modelos sincronizados correctamente");
+
+    // Levantar servidor
+    app.listen(PORT, () => {
+      console.log(`Server listening on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error('Unable to start server:', err);
+    process.exit(1);
+  }
+})();
