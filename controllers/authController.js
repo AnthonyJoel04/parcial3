@@ -71,7 +71,6 @@ exports.login = async (req, res) => {
   }
 };
 
-// 🔥 AQUÍ VA TU FUNCIÓN NUEVA
 exports.getUsers = async (req, res) => {
   try {
     const users = await User.findAll();

@@ -7,7 +7,6 @@ const createTestUser = async () => {
     await sequelize.authenticate();
     console.log('Conectado a la base de datos');
 
-    // Crear usuario de prueba
     const hashedPassword = await bcrypt.hash('123456', 10);
 
     const user = await User.create({
